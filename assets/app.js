@@ -1,17 +1,17 @@
 const sample = {
-  project: "tells-lite",
-  release_goal: "submit a polished Devpost project and keep the public demo reliable",
-  repo_url: "https://github.com/voidd0/jsonyo",
+  project: "launchroom",
+  release_goal: "submit a Google Cloud Rapid Agent Hackathon project with a public agent harness, live demo, and real repository evidence",
+  repo_url: "https://github.com/voidd0/launchroom-rapid-agent",
   docs: [
     "public app URL is live",
     "support demo exists",
-    "project copy was updated after profile cleanup",
-    "remaining risk: wrong primary demo link or missing compliance evidence"
+    "public repository is live",
+    "agent records real pass/blocked/warn states instead of faking readiness"
   ],
   signals: {
-    tests: ["browser smoke passed", "mobile screenshot present"],
-    open_risks: ["partner-platform requirement must be explicit", "video not yet attached"],
-    deadline: "2026-05-20"
+    tests: ["browser smoke passed", "mobile screenshot present", "repository API scan passed"],
+    open_risks: ["GitLab MCP authentication is not connected yet", "Google Cloud Agent Builder evidence is still needed", "video not yet attached"],
+    deadline: "2026-06-11"
   }
 };
 
@@ -36,7 +36,7 @@ function runLocalAgent(input) {
     final_status: "needs_work",
     steps: [
       { name: "preflight", status: "pass", summary: "release payload is structured enough to inspect", evidence: [`project=${input.project}`, `docs=${input.docs?.length || 0}`], ms: 4 },
-      { name: "repo_scan", status: "pass", summary: "public repository metadata is readable", evidence: ["repo=voidd0/jsonyo", "open issue/release evidence can be attached"], ms: 180 },
+      { name: "repo_scan", status: "pass", summary: "public repository metadata is readable", evidence: ["repo=voidd0/launchroom-rapid-agent", "open issue/release evidence can be attached"], ms: 180 },
       { name: "partner_mcp_probe", status: "blocked", summary: "GitLab MCP requires authentication; this demo refuses to fake it", evidence: ["status=401 without token", "final submission must include authenticated partner MCP log"], ms: 220 },
       { name: "evaluator", status: "blocked", summary: "blocked integration prevents final readiness", evidence: [`readiness_score=${readiness}`], ms: 8 }
     ],

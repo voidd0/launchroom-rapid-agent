@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-05-12T17:47:54+00:00",
+  "agent": "launchroom",
+  "project": "launchroom",
+  "final_status": "needs_work",
+  "steps": [
+    {
+      "name": "preflight",
+      "status": "pass",
+      "summary": "release payload is structured enough to inspect",
+      "evidence": [
+        "project=launchroom",
+        "docs=4"
+      ],
+      "ms": 0
+    },
+    {
+      "name": "repo_scan",
+      "status": "pass",
+      "summary": "public repository metadata was read",
+      "evidence": [
+        "repo=voidd0/launchroom-rapid-agent",
+        "default_branch=main",
+        "stars=0",
+        "open_issues=0"
+      ],
+      "ms": 270
+    },
+    {
+      "name": "partner_mcp_probe",
+      "status": "blocked",
+      "summary": "GitLab MCP requires authentication; no token is configured yet",
+      "evidence": [
+        "status=401",
+        "set GITLAB_MCP_TOKEN before final Devpost submission"
+      ],
+      "ms": 167
+    },
+    {
+      "name": "evaluator",
+      "status": "blocked",
+      "summary": "required external integration is not fully connected yet",
+      "evidence": [
+        "readiness_score=38"
+      ],
+      "ms": 0
+    }
+  ],
+  "report": {
+    "readiness_score": 38,
+    "blockers": [
+      "GitLab MCP authentication is not connected yet",
+      "Google Cloud Agent Builder evidence is still needed",
+      "deadline pressure: 2026-06-11",
+      "demo video evidence still needs a clean 3-minute walkthrough",
+      "one or more required tool checks are not production-complete",
+      "video not yet attached"
+    ],
+    "actions": [
+      "put the required platform-native URL first in every submission surface",
+      "attach visual proof: desktop, tablet, mobile, and one real flow screenshot",
+      "keep an execution log with every tool call and evaluator result",
+      "do not submit final Devpost until all required partner-platform checks are real"
+    ],
+    "owner_safe_summary": "launch is promising, but the submission must prove the required platform/tool integrations rather than only showing a polished page."
+  }
+}
