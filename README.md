@@ -5,12 +5,13 @@ Launchroom is a Devpost build for the Google Cloud Rapid Agent Hackathon.
 It turns a messy product release into a launch-readiness room: repo facts, risk signals, blocker ranking, owner-safe next actions, evaluator checks, and an evidence-backed report.
 
 Public support demo: https://voiddo.com/devpost/rapid-agent/
+Public repository: https://github.com/voidd0/launchroom-rapid-agent
 
 ## Current Status
 
 This repository contains a working browser demo and a local agent harness.
 
-The GitLab MCP partner path is intentionally honest: if no GitLab MCP token is present, the run records the MCP probe as blocked instead of pretending it succeeded. Final Devpost submission must include a real authenticated partner MCP run.
+The GitLab MCP partner path is intentionally honest: if no GitLab MCP token is present, the run records the MCP probe as blocked instead of pretending it succeeded. Final Devpost submission must include a real authenticated partner MCP run and Google Cloud Agent Builder evidence.
 
 ## Run Locally
 

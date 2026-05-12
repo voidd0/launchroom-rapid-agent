@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-12T17:41:07+00:00",
+  "generated_at": "2026-05-12T17:47:54+00:00",
   "agent": "launchroom",
-  "project": "tells-lite",
+  "project": "launchroom",
   "final_status": "needs_work",
   "steps": [
     {
@@ -9,7 +9,7 @@
       "status": "pass",
       "summary": "release payload is structured enough to inspect",
       "evidence": [
-        "project=tells-lite",
+        "project=launchroom",
         "docs=4"
       ],
       "ms": 0
@@ -19,12 +19,12 @@
       "status": "pass",
       "summary": "public repository metadata was read",
       "evidence": [
-        "repo=voidd0/jsonyo",
+        "repo=voidd0/launchroom-rapid-agent",
         "default_branch=main",
         "stars=0",
         "open_issues=0"
       ],
-      "ms": 225
+      "ms": 270
     },
     {
       "name": "partner_mcp_probe",
@@ -34,25 +34,26 @@
         "status=401",
         "set GITLAB_MCP_TOKEN before final Devpost submission"
       ],
-      "ms": 180
+      "ms": 167
     },
     {
       "name": "evaluator",
       "status": "blocked",
       "summary": "required external integration is not fully connected yet",
       "evidence": [
-        "readiness_score=47"
+        "readiness_score=38"
       ],
       "ms": 0
     }
   ],
   "report": {
-    "readiness_score": 47,
+    "readiness_score": 38,
     "blockers": [
-      "deadline pressure: 2026-05-20",
+      "GitLab MCP authentication is not connected yet",
+      "Google Cloud Agent Builder evidence is still needed",
+      "deadline pressure: 2026-06-11",
       "demo video evidence still needs a clean 3-minute walkthrough",
       "one or more required tool checks are not production-complete",
-      "partner-platform requirement must be explicit",
       "video not yet attached"
     ],
     "actions": [
