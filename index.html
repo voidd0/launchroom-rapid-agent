@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Launchroom · release readiness agent</title>
+  <meta name="description" content="Launchroom turns messy release evidence into a controlled launch-readiness room.">
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="https://voiddo.com" aria-label="vøiddo">
+      <img src="https://voiddo.com/images/emblem-clean.png" alt="">
+      <span>launchroom</span>
+    </a>
+    <nav>
+      <a href="#run">run</a>
+      <a href="#evidence">evidence</a>
+      <a href="#checks">checks</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">rapid agent build · vøiddo</p>
+        <h1>a launch room for the hour before shipping.</h1>
+        <p class="lead">paste release evidence, let the agent inspect it, call tools, rank blockers, and return owner-safe next actions instead of a vague green light.</p>
+        <div class="cta-row">
+          <a class="button primary" href="#run">review sample run</a>
+          <a class="button secondary" href="https://rapid-agent.devpost.com/" target="_blank" rel="noreferrer">hackathon</a>
+        </div>
+      </div>
+      <div class="hero-panel" aria-label="readiness panel">
+        <div class="meter">
+          <span>readiness</span>
+          <strong id="score">65</strong>
+        </div>
+        <div class="signal-grid">
+          <div><span>mcp</span><b id="mcp-state">blocked</b></div>
+          <div><span>repo</span><b>read</b></div>
+          <div><span>eval</span><b id="eval-state">strict</b></div>
+          <div><span>status</span><b id="final-state">needs work</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="run" class="workspace">
+      <div class="input-card">
+        <div class="section-head">
+          <p class="eyebrow">sample payload</p>
+          <h2>release evidence</h2>
+        </div>
+        <textarea id="payload" spellcheck="false"></textarea>
+        <button id="runBtn" class="button primary">run launchroom</button>
+      </div>
+      <div class="output-card">
+        <div class="section-head">
+          <p class="eyebrow">agent output</p>
+          <h2>blockers and next actions</h2>
+        </div>
+        <div id="report" class="report"></div>
+      </div>
+    </section>
+
+    <section id="evidence" class="evidence">
+      <div class="section-head">
+        <p class="eyebrow">not a chatbot</p>
+        <h2>every answer carries evidence.</h2>
+      </div>
+      <div id="steps" class="steps"></div>
+    </section>
+
+    <section id="checks" class="checks">
+      <div>
+        <p class="eyebrow">checker rule</p>
+        <h2>if a required integration is blocked, the report says blocked.</h2>
+      </div>
+      <p>Launchroom is built to avoid fake confidence. If GitLab MCP is unauthenticated, the evaluator blocks final readiness instead of hiding that under polished copy.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>Built by vøiddo — a small studio shipping AI-flavoured products, free dev tools, Chrome extensions and weird browser games.</span>
+  </footer>
+
+  <script src="./assets/app.js"></script>
+</body>
+</html>

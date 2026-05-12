@@ -1,0 +1,16 @@
+{
+  "project": "tells-lite",
+  "release_goal": "submit a polished Devpost project and keep the public demo reliable",
+  "repo_url": "https://github.com/v0idd0/jsonyo",
+  "docs": [
+    "public app URL is live",
+    "support demo exists",
+    "project copy was updated after profile cleanup",
+    "remaining risk: wrong primary demo link or missing compliance evidence"
+  ],
+  "signals": {
+    "tests": ["browser smoke passed", "mobile screenshot present"],
+    "open_risks": ["partner-platform requirement must be explicit", "video not yet attached"],
+    "deadline": "2026-05-20"
+  }
+}
