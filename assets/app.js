@@ -1,7 +1,7 @@
 const sample = {
   project: "tells-lite",
   release_goal: "submit a polished Devpost project and keep the public demo reliable",
-  repo_url: "https://github.com/v0idd0/jsonyo",
+  repo_url: "https://github.com/voidd0/jsonyo",
   docs: [
     "public app URL is live",
     "support demo exists",
