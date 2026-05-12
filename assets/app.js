@@ -36,7 +36,7 @@ function runLocalAgent(input) {
     final_status: "needs_work",
     steps: [
       { name: "preflight", status: "pass", summary: "release payload is structured enough to inspect", evidence: [`project=${input.project}`, `docs=${input.docs?.length || 0}`], ms: 4 },
-      { name: "repo_scan", status: "pass", summary: "public repository metadata is readable", evidence: ["repo=v0idd0/jsonyo", "open issue/release evidence can be attached"], ms: 180 },
+      { name: "repo_scan", status: "pass", summary: "public repository metadata is readable", evidence: ["repo=voidd0/jsonyo", "open issue/release evidence can be attached"], ms: 180 },
       { name: "partner_mcp_probe", status: "blocked", summary: "GitLab MCP requires authentication; this demo refuses to fake it", evidence: ["status=401 without token", "final submission must include authenticated partner MCP log"], ms: 220 },
       { name: "evaluator", status: "blocked", summary: "blocked integration prevents final readiness", evidence: [`readiness_score=${readiness}`], ms: 8 }
     ],
