@@ -67,6 +67,39 @@ TOOLS = [
                 }
             },
             {
+                "name": "check_fivetran_connectors",
+                "description": "List all Fivetran connectors for the account and return count and sync state. Demonstrates connector-management scope beyond account-info.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
+                "name": "verify_live_surfaces",
+                "description": "HEAD-check a list of public URLs and confirm HTTP 200 responses. Validates submission surfaces are publicly reachable.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "urls": {
+                            "type": "ARRAY",
+                            "items": {"type": "STRING"},
+                            "description": "Public URLs to HEAD-check"
+                        }
+                    },
+                    "required": ["urls"]
+                }
+            },
+            {
+                "name": "check_vertex_config",
+                "description": "Read and validate the Vertex AI Agent Builder deployment configuration. Confirms cloud deployment artifacts are present.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {},
+                    "required": []
+                }
+            },
+            {
                 "name": "score_readiness",
                 "description": "Compute a launch-readiness score 0-100 from blockers and strengths.",
                 "parameters": {
@@ -90,12 +123,15 @@ TOOLS = [
     }
 ]
 
+# Total tools declared in this deployment config — must match launchroom_agent.py TOOLS dict
+LAUNCHROOM_TOOLS_DECLARED = 7
+
 SYSTEM_INSTRUCTION = (
     "You are the Launchroom release-readiness agent. "
     "Your job is to check a software project for launch readiness by running "
-    "preflight checks, scanning the repository, probing partner MCP integrations, "
-    "and scoring the overall readiness. "
-    "Use all available tools before returning a final evaluation. "
+    "7 tool calls in sequence: check_preflight → scan_github_repo → probe_partner_mcp "
+    "→ check_fivetran_connectors → verify_live_surfaces → check_vertex_config → score_readiness. "
+    "Use ALL available tools before returning a final evaluation. "
     "Never hallucinate evidence — only report what tool calls confirm."
 )
 

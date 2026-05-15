@@ -1,0 +1,6 @@
+output/run-*.json
+output/huashu-*.png
+output/repo-cache.json
+__pycache__/
+*.pyc
+.env
