@@ -1,0 +1,215 @@
+{
+  "generated_at": "2026-05-15T10:39:36+00:00",
+  "agent": "launchroom",
+  "version": "0.2.0",
+  "project": "launchroom",
+  "final_status": "needs_work",
+  "reasoning_engine": "gemini-2.5-flash (function-calling loop, 4 tool calls)",
+  "steps": [
+    {
+      "name": "check_preflight",
+      "status": "pass",
+      "summary": "release payload structure is valid",
+      "evidence": [
+        "project=launchroom",
+        "release_goal_length=154",
+        "doc_count=6",
+        "signal_keys=['deadline', 'open_risks', 'tests']",
+        "tool_call=check_preflight",
+        "args={\"payload\": {\"docs\": [\"public app URL confirmed live: https://voiddo.com/devpost/rapid-agent/ (HTTP 200)\", \"support demo"
+      ],
+      "ms": 0
+    },
+    {
+      "name": "scan_github_repo",
+      "status": "pass",
+      "summary": "live GitHub API call succeeded",
+      "evidence": [
+        "repo=voidd0/launchroom-rapid-agent",
+        "default_branch=main",
+        "stars=0",
+        "open_issues=0",
+        "visibility=public",
+        "license=MIT",
+        "source=live_github_api",
+        "tool_call=scan_github_repo",
+        "args={\"repo_url\": \"https://github.com/voidd0/launchroom-rapid-agent\"}"
+      ],
+      "ms": 220
+    },
+    {
+      "name": "probe_partner_mcp",
+      "status": "pass",
+      "summary": "Fivetran partner MCP live credential probe succeeded",
+      "evidence": [
+        "partner=Fivetran",
+        "tool=get_account_info",
+        "account_name=voiddo",
+        "writes_disabled=true",
+        "mcp_tool_calls=read_only",
+        "tool_call=probe_partner_mcp",
+        "args={\"partner\": \"fivetran\"}"
+      ],
+      "ms": 326
+    },
+    {
+      "name": "score_readiness",
+      "status": "pass",
+      "summary": "",
+      "evidence": [
+        "tool_call=score_readiness",
+        "args={\"blockers\": [\"Missing Google Cloud Agent Builder evidence (Vertex AI Agent or Dialogflow CX call not yet captured).\", \""
+      ],
+      "ms": 0
+    }
+  ],
+  "tool_calls": [
+    {
+      "name": "check_preflight",
+      "args": {
+        "payload": {
+          "docs": [
+            "public app URL confirmed live: https://voiddo.com/devpost/rapid-agent/ (HTTP 200)",
+            "support demo confirmed live: https://voiddo.com/devpost/rapid-agent/ (HTTP 200)",
+            "public repository confirmed live: https://github.com/voidd0/launchroom-rapid-agent",
+            "agent records real pass/blocked/warn states: preflight, repo_scan, partner_mcp_probe, evaluator steps all wired",
+            "Fivetran partner MCP path authenticated: account_name=voiddo, writes_disabled=true",
+            "GitHub API scan confirmed: default_branch=main, open_issues=0"
+          ],
+          "project": "launchroom",
+          "release_goal": "submit a Google Cloud Rapid Agent Hackathon project with a public agent harness, live demo, Fivetran partner MCP integration, and real repository evidence",
+          "repo_url": "https://github.com/voidd0/launchroom-rapid-agent",
+          "signals": {
+            "deadline": "2026-06-11",
+            "open_risks": [
+              "Google Cloud Agent Builder evidence still needed (Vertex AI Agent or Dialogflow CX call not yet captured)",
+              "3-minute narrated demo video not yet attached",
+              "public GitHub repo stars=0 (low social proof)"
+            ],
+            "tests": [
+              "preflight pass",
+              "repo_scan pass — real GitHub API",
+              "partner_mcp_probe pass — real Fivetran account",
+              "evaluator pass — score 60+",
+              "public demo HTTP 200",
+              "Gemini 2.5 Flash structured output verified"
+            ]
+          },
+          "app_url": "https://voiddo.com/devpost/rapid-agent/",
+          "support_demo_url": "https://voiddo.com/devpost/rapid-agent/"
+        }
+      },
+      "result": {
+        "status": "pass",
+        "summary": "release payload structure is valid",
+        "evidence": [
+          "project=launchroom",
+          "release_goal_length=154",
+          "doc_count=6",
+          "signal_keys=['deadline', 'open_risks', 'tests']"
+        ]
+      },
+      "ms": 0
+    },
+    {
+      "name": "scan_github_repo",
+      "args": {
+        "repo_url": "https://github.com/voidd0/launchroom-rapid-agent"
+      },
+      "result": {
+        "status": "pass",
+        "summary": "live GitHub API call succeeded",
+        "evidence": [
+          "repo=voidd0/launchroom-rapid-agent",
+          "default_branch=main",
+          "stars=0",
+          "open_issues=0",
+          "visibility=public",
+          "license=MIT",
+          "source=live_github_api"
+        ]
+      },
+      "ms": 220
+    },
+    {
+      "name": "probe_partner_mcp",
+      "args": {
+        "partner": "fivetran"
+      },
+      "result": {
+        "status": "pass",
+        "summary": "Fivetran partner MCP live credential probe succeeded",
+        "evidence": [
+          "partner=Fivetran",
+          "tool=get_account_info",
+          "account_name=voiddo",
+          "writes_disabled=true",
+          "mcp_tool_calls=read_only"
+        ]
+      },
+      "ms": 326
+    },
+    {
+      "name": "score_readiness",
+      "args": {
+        "blockers": [
+          "Missing Google Cloud Agent Builder evidence (Vertex AI Agent or Dialogflow CX call not yet captured).",
+          "3-minute narrated demo video not yet attached.",
+          "Public GitHub repository has 0 stars (low social proof)."
+        ],
+        "strengths": [
+          "Public app URL confirmed live and accessible.",
+          "Support demo confirmed live and accessible.",
+          "Public GitHub repository confirmed live with real API scan data.",
+          "Fivetran partner MCP authenticated and live-probed successfully (read-only access confirmed).",
+          "Agent records real pass/blocked/warn states for various steps.",
+          "Gemini 2.5 Flash structured output verified.",
+          "Preflight, repo scan, partner MCP probe, and evaluator steps all passed."
+        ]
+      },
+      "result": {
+        "score": 52,
+        "blockers": [
+          "Missing Google Cloud Agent Builder evidence (Vertex AI Agent or Dialogflow CX call not yet captured).",
+          "3-minute narrated demo video not yet attached.",
+          "Public GitHub repository has 0 stars (low social proof)."
+        ],
+        "strengths": [
+          "Public app URL confirmed live and accessible.",
+          "Support demo confirmed live and accessible.",
+          "Public GitHub repository confirmed live with real API scan data.",
+          "Fivetran partner MCP authenticated and live-probed successfully (read-only access confirmed).",
+          "Agent records real pass/blocked/warn states for various steps.",
+          "Gemini 2.5 Flash structured output verified.",
+          "Preflight, repo scan, partner MCP probe, and evaluator steps all passed."
+        ],
+        "verdict": "needs critical work before submission"
+      },
+      "ms": 0
+    }
+  ],
+  "report": {
+    "readiness_score": 52,
+    "blockers": [
+      "Missing Google Cloud Agent Builder evidence (Vertex AI Agent or Dialogflow CX call not yet captured).",
+      "3-minute narrated demo video not yet attached.",
+      "Public GitHub repository has 0 stars (low social proof)."
+    ],
+    "strengths": [
+      "Public app URL confirmed live and accessible.",
+      "Support demo confirmed live and accessible.",
+      "Public GitHub repository confirmed live with real API scan data.",
+      "Fivetran partner MCP authenticated and live-probed successfully (read-only access confirmed).",
+      "Agent records real pass/blocked/warn states for various steps.",
+      "Gemini 2.5 Flash structured output verified.",
+      "Preflight, repo scan, partner MCP probe, and evaluator steps all passed."
+    ],
+    "actions": [
+      "Integrate and demonstrate Google Cloud Agent Builder (Vertex AI Agent or Dialogflow CX) functionality to meet hackathon requirements.",
+      "Create and attach a 3-minute narrated demo video for the submission.",
+      "Promote the GitHub repository to gain stars and improve social proof."
+    ],
+    "owner_safe_summary": "The Launchroom project demonstrates a strong technical foundation with live public URLs, a functional agent harness, and successful integrations with Fivetran and GitHub APIs. However, it currently lacks crucial evidence of Google Cloud Agent Builder integration, which is a core requirement for this hackathon. Additionally, a narrated demo video is still needed, and the GitHub repository's zero stars indicate a lack of community engagement. Addressing these critical blockers is essential to achieve a satisfactory readiness score for submission."
+  },
+  "total_ms": 13326
+}

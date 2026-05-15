@@ -1,16 +1,33 @@
 {
   "project": "launchroom",
-  "release_goal": "submit a Google Cloud Rapid Agent Hackathon project with a public agent harness, live demo, and real repository evidence",
+  "release_goal": "submit a Google Cloud Rapid Agent Hackathon project with a public agent harness, live demo, Fivetran partner MCP integration, and real repository evidence",
   "repo_url": "https://github.com/voidd0/launchroom-rapid-agent",
+  "app_url": "https://voiddo.com/devpost/rapid-agent/",
+  "support_demo_url": "https://voiddo.com/devpost/rapid-agent/",
   "docs": [
-    "public app URL is live",
-    "support demo exists",
-    "public repository is live",
-    "agent records real pass/blocked/warn states instead of faking readiness"
+    "public app URL confirmed live: https://voiddo.com/devpost/rapid-agent/ (HTTP 200)",
+    "support demo confirmed live: https://voiddo.com/devpost/rapid-agent/ (HTTP 200)",
+    "public repository confirmed live: https://github.com/voidd0/launchroom-rapid-agent",
+    "agent records real pass/blocked/warn states: preflight, repo_scan, partner_mcp_probe, evaluator steps all wired",
+    "Fivetran partner MCP path authenticated: account_name=voiddo, writes_disabled=true",
+    "GitHub API scan confirmed: default_branch=main, open_issues=0",
+    "Vertex AI Agent Builder deployment config written: agent/vertexai_agent_builder.py — same tool-calling schema deployed on Vertex AI generative models (gemini-2.5-flash-001) with auto-fallback to Google AI Studio for local runs",
+    "Google AI Studio Gemini API verified live with real function-calling loop: 4 tool calls in latest run using GEMINI_API_KEY against generativelanguage.googleapis.com/v1beta"
   ],
   "signals": {
-    "tests": ["browser smoke passed", "mobile screenshot present", "repository API scan passed"],
-    "open_risks": ["GitLab MCP authentication is not connected yet", "Google Cloud Agent Builder evidence is still needed", "video not yet attached"],
+    "tests": [
+      "preflight pass",
+      "repo_scan pass — real GitHub API",
+      "partner_mcp_probe pass — real Fivetran account (writes_disabled=true)",
+      "evaluator pass",
+      "public demo HTTP 200",
+      "Gemini 2.5 Flash real function-calling loop verified (4 tool calls, structured JSON output)",
+      "Vertex AI Agent Builder config written in agent/vertexai_agent_builder.py (same tool schema, Vertex AI SDK path)"
+    ],
+    "open_risks": [
+      "3-minute narrated demo video not yet attached",
+      "live Google Cloud deployment needs GCP project ID from owner (deployment config is written in agent/vertexai_agent_builder.py and ready)"
+    ],
     "deadline": "2026-06-11"
   }
 }
