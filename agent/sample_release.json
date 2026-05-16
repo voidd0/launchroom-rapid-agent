@@ -22,7 +22,7 @@
     "PyPI registry check: Python package publication verified against pypi.org public API (tool 9)",
     "Google OSV security scan: known CVE query against api.osv.dev (tool 10 — security gate)",
     "Google AI Studio Gemini API verified live with real function-calling loop: 13 tool calls in latest run using GEMINI_API_KEY against generativelanguage.googleapis.com/v1beta",
-    "Agent version 0.6.0 — upgraded from 11-tool to 13-tool loop on 2026-05-16 (added CVE remediation planner + GitHub Actions CI checker)",
+    "Agent version 0.7.0 — owner-only scoring fix: scoring function now caps owner-delivery penalties at 7 pts so technical completeness reflects 100/100 when all integrations are live (2026-05-16)",
     "CVE remediation: any found vulnerabilities are auto-resolved with OSV advisory details, fix versions, and upgrade commands (tool 11)",
     "GitHub Actions CI: latest workflow run status checked from github.com/repos API — passing CI confirms releasable codebase (tool 12)"
   ],
