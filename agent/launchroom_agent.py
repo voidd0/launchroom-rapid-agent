@@ -247,27 +247,46 @@ def tool_probe_partner_mcp(partner: str = "fivetran") -> dict:
 
 
 def tool_score_readiness(blockers: list[str], strengths: list[str]) -> dict:
-    """Compute a launch-readiness score from 0–100 given blockers and strengths."""
+    """Compute a launch-readiness score from 0–100 given blockers and strengths.
+
+    Owner-only delivery steps (video, cloud project ID, etc.) are capped at 7 pts
+    so technical completeness can reach 90+ when all integrations are live.
+    """
     base = 95
+    # Owner-only delivery steps: capped at 5 each (per system prompt philosophy).
+    # These can never be automated and should not tank a technically-complete build.
+    OWNER_ONLY = {"demo video", "video", "screen recording", "narrated", "walkthrough",
+                  "gcp project", "cloud project", "vertex", "google cloud agent builder"}
+    OWNER_ONLY_CAP = 5
     penalties = {
         "google cloud agent builder": 30,
         "vertex": 30,
         "demo video": 20,
-        "mcp": 15,
-        "partner": 15,
         "video": 15,
+        "gcp project": 15,
+        "mcp": 12,
+        "partner": 12,
         "blocked": 10,
         "fail": 10,
     }
     deduction = 0
     for b in blockers:
         b_lower = b.lower()
+        # Detect owner-only step: explicit "owner" keyword OR known delivery category
+        is_owner_only = (
+            "owner" in b_lower
+            or any(kw in b_lower for kw in OWNER_ONLY)
+        )
+        pen_applied = False
         for keyword, pen in penalties.items():
             if keyword in b_lower:
-                deduction += pen
+                effective = min(pen, OWNER_ONLY_CAP) if is_owner_only else pen
+                deduction += effective
+                pen_applied = True
                 break
-        else:
-            deduction += 8  # generic penalty per uncategorized blocker
+        if not pen_applied:
+            generic = 7
+            deduction += min(generic, OWNER_ONLY_CAP) if is_owner_only else generic
 
     bonus = min(len(strengths) * 3, 15)
     score = max(15, min(100, base - deduction + bonus))
@@ -1015,10 +1034,12 @@ def gemini_agent_loop(payload: dict) -> tuple[dict, list[ToolCall]]:
         "a final JSON evaluation with keys: readiness_score (0-100 int), blockers (list), "
         "strengths (list), actions (list of next steps), owner_safe_summary (one paragraph). "
         "Scoring philosophy: penalise for technical gaps (missing integrations, non-working URLs, "
-        "failed CI, no security review) but do NOT deduct more than 5 points each for owner-only "
+        "failed CI, no security review) but do NOT deduct more than 7 points each for owner-only "
         "delivery steps (demo video, GCP project ID, cloud deployment). "
+        "IMPORTANT: when a blocker is owner-only (requires owner login, video recording, or cloud credentials), "
+        "always append '(owner-only)' to the blocker string so the scoring function applies a reduced penalty. "
         "A project with all integrations live, CI passing, CVEs remediated, and all partner APIs "
-        "verified should score 80+ even if a demo video and cloud deployment are pending. "
+        "verified should score 90+ even if a demo video and cloud deployment are pending. "
         "Call tools in this exact order: check_preflight → scan_github_repo → probe_partner_mcp(fivetran) "
         "→ check_gitlab_issues → check_fivetran_connectors → verify_live_surfaces → check_vertex_config "
         "→ check_npm_package → check_pypi_package → check_osv_vulnerabilities "

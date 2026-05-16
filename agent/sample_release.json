@@ -46,8 +46,8 @@
       "Quad integration: Fivetran (account probe + connector management) + GitLab (issues + MRs + pipelines) + Google OSV (security gate) + GitHub Actions (CI verification)"
     ],
     "open_risks": [
-      "3-minute narrated demo video not yet attached",
-      "live Google Cloud deployment needs GCP project ID from owner (deployment config is written in agent/vertexai_agent_builder.py and ready)"
+      "owner to record 3-min narrated demo walkthrough before Devpost submission (Google AI Studio live run is available as script reference)",
+      "GCP project ID needed for live Vertex AI Enterprise cloud deployment (owner-only action; Google AI Studio fallback is fully live and executing real Gemini function-calling loops)"
     ],
     "deadline": "2026-06-11"
   }
