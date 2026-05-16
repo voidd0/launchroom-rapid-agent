@@ -1137,7 +1137,7 @@ def _deterministic_fallback(payload: dict) -> dict:
     if any("video" in r.lower() for r in risks):
         risks.append("demo video evidence still needed")
     blockers = sorted(set(risks))[:6]
-    score = max(25, 92 - len(blockers) * 9)
+    score = max(50, 92 - len(blockers) * 7)
     return {
         "readiness_score": score,
         "blockers": blockers,
