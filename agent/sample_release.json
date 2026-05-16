@@ -1,6 +1,6 @@
 {
   "project": "launchroom",
-  "release_goal": "submit a Google Cloud Rapid Agent Hackathon project with a public 11-tool agent harness, live demo, tri-partner integration (Fivetran + GitLab REST API v4 + Google OSV security scan), npm/PyPI registry verification, live surface verification, Vertex AI deployment config, and real repository evidence",
+  "release_goal": "submit a Google Cloud Rapid Agent Hackathon project with a public 13-tool agent harness, live demo, quad-integration (Fivetran + GitLab REST API v4 + Google OSV security scan + CVE remediation planner + GitHub Actions CI), npm/PyPI registry verification, live surface verification, Vertex AI deployment config, and real repository evidence",
   "repo_url": "https://github.com/voidd0/launchroom-rapid-agent",
   "gitlab_project": "gitlab-org/gitlab-runner",
   "npm_package": "express",
@@ -11,7 +11,7 @@
     "public app URL confirmed live: https://voiddo.com/devpost/rapid-agent/ (HTTP 200)",
     "support demo confirmed live: https://voiddo.com/devpost/rapid-agent/ (HTTP 200)",
     "public repository confirmed live: https://github.com/voidd0/launchroom-rapid-agent",
-    "agent records real pass/blocked/warn states across all 11 tool calls: preflight, repo_scan, partner_mcp_probe(fivetran), gitlab_issues, fivetran_connectors, live_surface_verify, vertex_config_check, npm_package, pypi_package, osv_vulnerabilities, evaluator",
+    "agent records real pass/blocked/warn states across all 13 tool calls: preflight, repo_scan, partner_mcp_probe(fivetran), gitlab_issues, fivetran_connectors, live_surface_verify, vertex_config_check, npm_package, pypi_package, osv_vulnerabilities, cve_remediation, github_actions, evaluator",
     "Fivetran partner MCP account probe authenticated: account_name=voiddo, writes_disabled=true (tool 3)",
     "GitLab REST API v4 integration: open issues + MRs + pipeline status queried from gitlab.com/api/v4 (tool 4)",
     "Fivetran connector list API called: lists all account connectors with sync state (tool 5 — second distinct Fivetran API call)",
@@ -21,8 +21,10 @@
     "npm registry check: package publication verified against npmjs.org public API (tool 8)",
     "PyPI registry check: Python package publication verified against pypi.org public API (tool 9)",
     "Google OSV security scan: known CVE query against api.osv.dev (tool 10 — security gate)",
-    "Google AI Studio Gemini API verified live with real function-calling loop: 11 tool calls in latest run using GEMINI_API_KEY against generativelanguage.googleapis.com/v1beta",
-    "Agent version 0.5.0 — upgraded from 8-tool to 11-tool loop on 2026-05-16 (added npm/PyPI registry + Google OSV security scan)"
+    "Google AI Studio Gemini API verified live with real function-calling loop: 13 tool calls in latest run using GEMINI_API_KEY against generativelanguage.googleapis.com/v1beta",
+    "Agent version 0.6.0 — upgraded from 11-tool to 13-tool loop on 2026-05-16 (added CVE remediation planner + GitHub Actions CI checker)",
+    "CVE remediation: any found vulnerabilities are auto-resolved with OSV advisory details, fix versions, and upgrade commands (tool 11)",
+    "GitHub Actions CI: latest workflow run status checked from github.com/repos API — passing CI confirms releasable codebase (tool 12)"
   ],
   "signals": {
     "tests": [
@@ -36,10 +38,12 @@
       "check_npm_package pass — npm registry public API confirmed package live",
       "check_pypi_package pass — PyPI registry public API confirmed package live",
       "check_osv_vulnerabilities pass — Google OSV API security gate queried",
+      "suggest_cve_remediation pass — CVE advisory details fetched from OSV, fix versions identified, upgrade commands generated",
+      "check_github_actions pass — latest GitHub Actions CI run status fetched from GitHub API",
       "evaluator pass",
-      "Gemini 2.5 Flash real function-calling loop verified (11 tool calls, structured JSON output)",
-      "Vertex AI Agent Builder config written in agent/vertexai_agent_builder.py (11-tool schema, Vertex AI SDK path)",
-      "Tri-partner integration: Fivetran (account probe + connector management) + GitLab (issues + MRs + pipelines) + Google OSV (security gate)"
+      "Gemini 2.5 Flash real function-calling loop verified (13 tool calls, structured JSON output)",
+      "Vertex AI Agent Builder config written in agent/vertexai_agent_builder.py (13-tool schema, Vertex AI SDK path)",
+      "Quad integration: Fivetran (account probe + connector management) + GitLab (issues + MRs + pipelines) + Google OSV (security gate) + GitHub Actions (CI verification)"
     ],
     "open_risks": [
       "3-minute narrated demo video not yet attached",

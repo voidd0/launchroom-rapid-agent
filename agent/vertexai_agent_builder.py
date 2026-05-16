@@ -164,6 +164,39 @@ TOOLS = [
                 }
             },
             {
+                "name": "suggest_cve_remediation",
+                "description": "Given a list of CVE/GHSA IDs from check_osv_vulnerabilities, fetch each advisory from OSV and return a concrete fix plan with severity, fix version, and upgrade command. Call this after any OSV vulnerability finding to convert blockers into a managed risk.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "ecosystem": {
+                            "type": "STRING",
+                            "description": "Package ecosystem, e.g. npm or PyPI"
+                        },
+                        "vuln_ids": {
+                            "type": "ARRAY",
+                            "items": {"type": "STRING"},
+                            "description": "List of GHSA or CVE IDs to look up"
+                        }
+                    },
+                    "required": ["ecosystem", "vuln_ids"]
+                }
+            },
+            {
+                "name": "check_github_actions",
+                "description": "Fetch the latest GitHub Actions workflow run for the project repo and report its status, conclusion, and branch. A passing CI run confirms submission codebase integrity.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "repo": {
+                            "type": "STRING",
+                            "description": "GitHub repo in owner/repo or full URL format"
+                        }
+                    },
+                    "required": ["repo"]
+                }
+            },
+            {
                 "name": "score_readiness",
                 "description": "Compute a launch-readiness score 0-100 from blockers and strengths.",
                 "parameters": {
@@ -188,14 +221,15 @@ TOOLS = [
 ]
 
 # Total tools declared in this deployment config — must match launchroom_agent.py TOOLS dict
-LAUNCHROOM_TOOLS_DECLARED = 11
+LAUNCHROOM_TOOLS_DECLARED = 13
 
 SYSTEM_INSTRUCTION = (
     "You are the Launchroom release-readiness agent. "
     "Your job is to check a software project for launch readiness by running "
-    "10 tool calls in sequence: check_preflight → scan_github_repo → probe_partner_mcp "
+    "13 tool calls in sequence: check_preflight → scan_github_repo → probe_partner_mcp "
     "→ check_gitlab_issues → check_fivetran_connectors → verify_live_surfaces → check_vertex_config "
-    "→ check_npm_package → check_pypi_package → check_osv_vulnerabilities → score_readiness. "
+    "→ check_npm_package → check_pypi_package → check_osv_vulnerabilities "
+    "→ suggest_cve_remediation → check_github_actions → score_readiness. "
     "Use ALL available tools before returning a final evaluation. "
     "Never hallucinate evidence — only report what tool calls confirm."
 )

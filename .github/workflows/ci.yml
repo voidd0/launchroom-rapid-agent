@@ -1,0 +1,46 @@
+name: Launchroom Agent CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 lxml
+
+      - name: Verify agent imports and tool count
+        working-directory: agent
+        run: |
+          python3 -c "
+          import json, sys, pathlib
+          sys.path.insert(0, str(pathlib.Path('.').resolve()))
+          import launchroom_agent as la
+          assert len(la.TOOLS) == 13, f'Expected 13 tools, got {len(la.TOOLS)}'
+          assert len(la.TOOL_DECLARATIONS) == 13, f'Expected 13 declarations, got {len(la.TOOL_DECLARATIONS)}'
+          payload = json.loads(pathlib.Path('sample_release.json').read_text())
+          result = la._deterministic_fallback(payload)
+          assert result.get('readiness_score', 0) >= 70
+          print('Pass: 13 tools verified, fallback score =', result.get('readiness_score'))
+          "
+
+      - name: Verify vertex config in sync
+        working-directory: agent
+        run: |
+          python3 -c "
+          import launchroom_agent as la
+          import vertexai_agent_builder as vab
+          assert vab.LAUNCHROOM_TOOLS_DECLARED == len(la.TOOLS), 'Tool count mismatch'
+          print('Pass: vertex config in sync, tools =', vab.LAUNCHROOM_TOOLS_DECLARED)
+          "
