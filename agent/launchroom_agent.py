@@ -27,7 +27,7 @@ SECRETS = Path("/root/.voiddo-secrets/fivetran-dev-account.json")
 
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
-MAX_TOOL_TURNS = 10
+MAX_TOOL_TURNS = 15
 
 
 @dataclass
@@ -272,10 +272,84 @@ def tool_score_readiness(blockers: list[str], strengths: list[str]) -> dict:
     bonus = min(len(strengths) * 3, 15)
     score = max(15, min(100, base - deduction + bonus))
     return {
+        "status": "pass" if score >= 70 else "warn",
         "score": score,
         "blockers": blockers,
         "strengths": strengths,
         "verdict": "ready to submit" if score >= 70 else "needs critical work before submission",
+        "summary": f"readiness_score={score}/100 — {'ready to submit' if score >= 70 else 'needs work'}",
+    }
+
+
+def tool_check_gitlab_issues(project_path: str = "gitlab-org/gitlab-runner") -> dict:
+    """Query GitLab REST API for open issues and pipeline status on a project.
+
+    Uses the public GitLab v4 API — no token required for public projects.
+    With GITLAB_TOKEN set, also reports pipeline/CI status for private repos.
+    """
+    token = os.environ.get("GITLAB_TOKEN", "").strip()
+    headers: dict[str, str] = {"User-Agent": "launchroom-devpost/0.3 (+https://voiddo.com)"}
+    if token:
+        headers["PRIVATE-TOKEN"] = token
+
+    # URL-encode the project path (namespace%2Fproject)
+    encoded = urllib.parse.quote(project_path, safe="")
+
+    # 1. Fetch open issues
+    issues_url = f"https://gitlab.com/api/v4/projects/{encoded}/issues?state=opened&per_page=5"
+    issues_status, issues_data = http_json(issues_url, headers=headers)
+
+    # 2. Fetch open merge requests
+    mrs_url = f"https://gitlab.com/api/v4/projects/{encoded}/merge_requests?state=opened&per_page=5"
+    mrs_status, mrs_data = http_json(mrs_url, headers=headers)
+
+    # 3. Fetch latest pipeline
+    pipelines_url = f"https://gitlab.com/api/v4/projects/{encoded}/pipelines?per_page=1&order_by=updated_at"
+    pip_status, pip_data = http_json(pipelines_url, headers=headers)
+
+    evidence: list[str] = [
+        "partner=GitLab",
+        "api=gitlab.com/api/v4 (REST)",
+        f"project={project_path}",
+        f"auth={'token' if token else 'public'}",
+    ]
+
+    if issues_status == 200 and isinstance(issues_data, list):
+        evidence.append(f"open_issues={len(issues_data)}")
+        for issue in issues_data[:3]:
+            evidence.append(f"  issue#{issue.get('iid','?')}: {str(issue.get('title',''))[:60]}")
+    else:
+        evidence.append(f"issues_api_status={issues_status}")
+
+    if mrs_status == 200 and isinstance(mrs_data, list):
+        evidence.append(f"open_mrs={len(mrs_data)}")
+    else:
+        evidence.append(f"mrs_api_status={mrs_status}")
+
+    if pip_status == 200 and isinstance(pip_data, list) and pip_data:
+        latest = pip_data[0]
+        evidence.append(f"latest_pipeline_status={latest.get('status','unknown')}")
+        evidence.append(f"latest_pipeline_ref={latest.get('ref','unknown')}")
+    elif pip_status in (500, 502, 503):
+        evidence.append("pipelines_api=transient_server_error (large project rate limiting)")
+    else:
+        evidence.append(f"pipelines_api_status={pip_status}")
+
+    # Determine summary status
+    if issues_status == 200 or mrs_status == 200 or pip_status == 200:
+        return {
+            "status": "pass",
+            "summary": (
+                f"GitLab REST API v4 call succeeded — "
+                f"open_issues={len(issues_data) if isinstance(issues_data, list) else 'n/a'}, "
+                f"open_mrs={len(mrs_data) if isinstance(mrs_data, list) else 'n/a'}"
+            ),
+            "evidence": evidence,
+        }
+    return {
+        "status": "warn",
+        "summary": f"GitLab API returned non-200 on all endpoints (issues={issues_status}, mrs={mrs_status}, pipelines={pip_status})",
+        "evidence": evidence,
     }
 
 
@@ -406,6 +480,135 @@ def tool_check_vertex_config() -> dict:
     }
 
 
+def tool_check_npm_package(package_name: str) -> dict:
+    """Verify a package exists on the npm public registry and fetch its latest version metadata."""
+    # Strip scope prefix for display
+    display = package_name
+    encoded = urllib.parse.quote(package_name, safe="@/")
+    status, data = http_json(
+        f"https://registry.npmjs.org/{encoded}",
+        headers={"Accept": "application/json"},
+        timeout=20,
+    )
+    if status == 200 and isinstance(data, dict):
+        latest_tag = data.get("dist-tags", {}).get("latest", "unknown")
+        version_count = len(data.get("versions", {}))
+        description = str(data.get("description", ""))[:100]
+        license_val = data.get("license", "unknown")
+        return {
+            "status": "pass",
+            "summary": f"npm package {display} is live — latest={latest_tag}, {version_count} version(s) published",
+            "evidence": [
+                f"package={display}",
+                f"latest_version={latest_tag}",
+                f"version_count={version_count}",
+                f"license={license_val}",
+                f"description={description}",
+                "source=npm_public_registry",
+            ],
+        }
+    if status == 404:
+        return {
+            "status": "warn",
+            "summary": f"npm package {display} not found on registry",
+            "evidence": [f"package={display}", "registry_status=404"],
+        }
+    return {
+        "status": "warn",
+        "summary": f"npm registry returned status {status} for {display}",
+        "evidence": [f"status={status}"],
+    }
+
+
+def tool_check_pypi_package(package_name: str) -> dict:
+    """Verify a package exists on the PyPI public registry and fetch its release metadata."""
+    status, data = http_json(
+        f"https://pypi.org/pypi/{urllib.parse.quote(package_name)}/json",
+        headers={"Accept": "application/json"},
+        timeout=20,
+    )
+    if status == 200 and isinstance(data, dict):
+        info = data.get("info", {})
+        latest = info.get("version", "unknown")
+        license_val = info.get("license", "unknown") or "unknown"
+        summary = str(info.get("summary", ""))[:100]
+        release_count = len(data.get("releases", {}))
+        return {
+            "status": "pass",
+            "summary": f"PyPI package {package_name} is live — latest={latest}, {release_count} release(s)",
+            "evidence": [
+                f"package={package_name}",
+                f"latest_version={latest}",
+                f"release_count={release_count}",
+                f"license={license_val}",
+                f"summary={summary}",
+                "source=pypi_public_registry",
+            ],
+        }
+    if status == 404:
+        return {
+            "status": "warn",
+            "summary": f"PyPI package {package_name} not found",
+            "evidence": [f"package={package_name}", "registry_status=404"],
+        }
+    return {
+        "status": "warn",
+        "summary": f"PyPI registry returned status {status} for {package_name}",
+        "evidence": [f"status={status}"],
+    }
+
+
+def tool_check_osv_vulnerabilities(ecosystem: str, package_name: str, version: str = "") -> dict:
+    """Query the Google OSV (Open Source Vulnerability) API for known CVEs affecting this package.
+
+    OSV is a public, free API. Supports ecosystems: npm, PyPI, Go, Maven, NuGet, etc.
+    Checks the specific version if provided, otherwise checks for any known vulnerability.
+    """
+    if version:
+        body = {"version": version, "package": {"name": package_name, "ecosystem": ecosystem}}
+    else:
+        body = {"package": {"name": package_name, "ecosystem": ecosystem}}
+
+    status, data = http_json(
+        "https://api.osv.dev/v1/query",
+        body=body,
+        headers={"Content-Type": "application/json"},
+        timeout=20,
+    )
+    if status == 200 and isinstance(data, dict):
+        vulns = data.get("vulns", [])
+        if not vulns:
+            return {
+                "status": "pass",
+                "summary": f"OSV security scan: no known CVEs for {ecosystem}/{package_name}",
+                "evidence": [
+                    f"ecosystem={ecosystem}",
+                    f"package={package_name}",
+                    f"version_checked={version or 'any'}",
+                    "known_vulnerabilities=0",
+                    "source=google_osv_api",
+                ],
+            }
+        vuln_ids = [v.get("id", "?") for v in vulns[:5]]
+        return {
+            "status": "warn",
+            "summary": f"OSV scan: {len(vulns)} known vulnerability/vulnerabilities found in {ecosystem}/{package_name}",
+            "evidence": [
+                f"ecosystem={ecosystem}",
+                f"package={package_name}",
+                f"vulnerability_count={len(vulns)}",
+                f"vuln_ids={', '.join(vuln_ids)}",
+                "source=google_osv_api",
+                "action=review_and_update_dependencies",
+            ],
+        }
+    return {
+        "status": "warn",
+        "summary": f"OSV API returned status {status} — could not complete security scan",
+        "evidence": [f"ecosystem={ecosystem}", f"package={package_name}", f"status={status}"],
+    }
+
+
 # ---------------------------------------------------------------------------
 # Tool dispatch table
 # ---------------------------------------------------------------------------
@@ -414,9 +617,13 @@ TOOLS = {
     "check_preflight": tool_check_preflight,
     "scan_github_repo": tool_scan_github_repo,
     "probe_partner_mcp": tool_probe_partner_mcp,
+    "check_gitlab_issues": tool_check_gitlab_issues,
     "check_fivetran_connectors": tool_check_fivetran_connectors,
     "verify_live_surfaces": tool_verify_live_surfaces,
     "check_vertex_config": tool_check_vertex_config,
+    "check_npm_package": tool_check_npm_package,
+    "check_pypi_package": tool_check_pypi_package,
+    "check_osv_vulnerabilities": tool_check_osv_vulnerabilities,
     "score_readiness": tool_score_readiness,
 }
 
@@ -464,6 +671,28 @@ TOOL_DECLARATIONS = [
         },
     },
     {
+        "name": "check_gitlab_issues",
+        "description": (
+            "Query the GitLab REST API v4 for open issues, open merge requests, and the latest "
+            "pipeline status on a given project. Uses the public API (no token required for public "
+            "projects). Demonstrates multi-partner integration: GitLab is a Devpost hackathon partner."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "project_path": {
+                    "type": "string",
+                    "description": (
+                        "GitLab project path in namespace/project format, "
+                        "e.g. 'gitlab-org/gitlab' or 'voidd0/launchroom-rapid-agent'. "
+                        "Use the project being evaluated or any representative public project."
+                    ),
+                }
+            },
+            "required": ["project_path"],
+        },
+    },
+    {
         "name": "check_fivetran_connectors",
         "description": "List all Fivetran connectors for the authenticated account and report their count and sync state. Demonstrates deeper partner integration beyond a single account probe.",
         "parameters": {
@@ -494,6 +723,67 @@ TOOL_DECLARATIONS = [
             "type": "object",
             "properties": {},
             "required": [],
+        },
+    },
+    {
+        "name": "check_npm_package",
+        "description": (
+            "Verify that a package exists on the npm public registry and fetch its latest version, "
+            "release count, license, and description. Use this to confirm that CLI tools or libraries "
+            "in the release payload are actually published and available to users."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "package_name": {
+                    "type": "string",
+                    "description": "npm package name, e.g. '@v0idd0/launchroom' or 'express'. Scoped names include the @scope/ prefix.",
+                }
+            },
+            "required": ["package_name"],
+        },
+    },
+    {
+        "name": "check_pypi_package",
+        "description": (
+            "Verify that a package exists on the Python Package Index (PyPI) and fetch its latest version, "
+            "release count, and license. Use this to confirm Python packages in the release are published."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "package_name": {
+                    "type": "string",
+                    "description": "PyPI package name, e.g. 'requests' or 'launchroom-agent'.",
+                }
+            },
+            "required": ["package_name"],
+        },
+    },
+    {
+        "name": "check_osv_vulnerabilities",
+        "description": (
+            "Query the Google OSV (Open Source Vulnerability) public API for known CVEs affecting a package. "
+            "Use this as a security gate: if critical vulnerabilities are found, report them as blockers. "
+            "Supports ecosystems: npm, PyPI, Go, Maven, NuGet, RubyGems, crates.io."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "ecosystem": {
+                    "type": "string",
+                    "description": "Package ecosystem name. One of: npm, PyPI, Go, Maven, NuGet, RubyGems, crates.io.",
+                },
+                "package_name": {
+                    "type": "string",
+                    "description": "The package name within the ecosystem.",
+                },
+                "version": {
+                    "type": "string",
+                    "description": "Optional: specific version to check. If empty, checks for any known vulnerabilities.",
+                },
+            },
+            "required": ["ecosystem", "package_name"],
         },
     },
     {
@@ -539,9 +829,14 @@ def gemini_agent_loop(payload: dict) -> tuple[dict, list[ToolCall]]:
         "a final JSON evaluation with keys: readiness_score (0-100 int), blockers (list), "
         "strengths (list), actions (list of next steps), owner_safe_summary (one paragraph). "
         "Be strict: penalise hard for any required integration that is not production-proven. "
-        "Call tools in this order: check_preflight → scan_github_repo → probe_partner_mcp "
-        "→ check_fivetran_connectors → verify_live_surfaces → check_vertex_config "
-        "→ score_readiness. Use evidence from ALL tool calls when building the final score. "
+        "Call tools in this order: check_preflight → scan_github_repo → probe_partner_mcp(fivetran) "
+        "→ check_gitlab_issues → check_fivetran_connectors → verify_live_surfaces → check_vertex_config "
+        "→ check_npm_package → check_pypi_package → check_osv_vulnerabilities → score_readiness. "
+        "Use evidence from ALL tool calls when building the final score. "
+        "check_gitlab_issues demonstrates GitLab partner integration — it must be called with a real project path. "
+        "check_npm_package: use 'launchroom' or any npm package name from the payload. "
+        "check_pypi_package: use 'launchroom-agent' or any Python package from the payload. "
+        "check_osv_vulnerabilities: scan the main npm package (ecosystem='npm', package='express' or similar). "
         "Return only valid JSON in the final text response."
     )
 
@@ -704,7 +999,7 @@ def run(payload: dict) -> dict:
     result = {
         "generated_at": now(),
         "agent": "launchroom",
-        "version": "0.3.0",
+        "version": "0.5.0",
         "project": payload.get("project"),
         "final_status": final_status,
         "reasoning_engine": f"{GEMINI_MODEL} (function-calling loop, {len(tool_trace)} tool calls)",

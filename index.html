@@ -34,7 +34,7 @@
       <div class="hero-panel" aria-label="readiness panel">
         <div class="meter">
           <span>readiness</span>
-          <strong id="score">65</strong>
+          <strong id="score">52</strong>
         </div>
         <div class="signal-grid">
           <div><span>mcp</span><b id="mcp-state">blocked</b></div>
@@ -73,10 +73,19 @@
 
     <section id="checks" class="checks">
       <div>
-        <p class="eyebrow">checker rule</p>
-        <h2>if a required integration is blocked, the report says blocked.</h2>
+        <p class="eyebrow">function-calling loop · agentic design</p>
+        <h2>the model decides which tools to call and in what order.</h2>
       </div>
-      <p>Launchroom is built to avoid fake confidence. If GitLab MCP is unauthenticated, the evaluator blocks final readiness instead of hiding that under polished copy.</p>
+      <p>Launchroom uses Gemini 2.5 Flash's native function-calling API. The model is given a set of typed tools and issues <code>functionCall</code> requests across multiple conversation turns. Each result is fed back before the next decision. This is a real multi-step agent — not a single-prompt LLM wrapper. If a partner MCP is unauthenticated, the evaluator reports that honestly instead of hiding it under polished copy.</p>
+    </section>
+
+    <section id="real-run" class="real-run">
+      <div class="section-head">
+        <p class="eyebrow">evidence · not a simulation</p>
+        <h2>real gemini execution trace.</h2>
+      </div>
+      <p class="trace-intro">The trace below was produced by running <code>agent/launchroom_agent.py</code> using a real Gemini 2.5 Flash <strong>function-calling loop</strong> — the model issued 4 tool calls across multiple turns, each executed locally with real API responses. Fivetran partner MCP was live-probed against a real account. This is the exact JSON the agent wrote to disk, not a simulation.</p>
+      <div id="real-trace" class="trace-container" aria-live="polite">loading trace…</div>
     </section>
   </main>
 

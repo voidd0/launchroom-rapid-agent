@@ -11,7 +11,7 @@ Public repository: https://github.com/voidd0/launchroom-rapid-agent
 
 This repository contains a working browser demo and a local agent harness.
 
-The GitLab MCP partner path is intentionally honest: if no GitLab MCP token is present, the run records the MCP probe as blocked instead of pretending it succeeded. Final Devpost submission must include a real authenticated partner MCP run and Google Cloud Agent Builder evidence.
+The partner path uses Fivetran. The local harness verifies the same account API path used by the official Fivetran MCP server and keeps writes disabled. If Fivetran credentials are missing or invalid, the run records the MCP probe as blocked instead of pretending it succeeded. Final Devpost submission still needs Google Cloud Agent Builder evidence and a clean demo video.
 
 ## Run Locally
 
@@ -29,7 +29,9 @@ Optional:
 
 ```bash
 export GEMINI_API_KEY=...
-export GITLAB_MCP_TOKEN=...
+export FIVETRAN_API_KEY=...
+export FIVETRAN_API_SECRET=...
+export FIVETRAN_ALLOW_WRITES=false
 ```
 
 Without `GEMINI_API_KEY`, the harness uses deterministic local reasoning so QA remains free and repeatable.

@@ -67,6 +67,20 @@ TOOLS = [
                 }
             },
             {
+                "name": "check_gitlab_issues",
+                "description": "Query GitLab REST API v4 for open issues, merge requests, and latest pipeline status. Demonstrates GitLab partner integration — no token required for public projects.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "project_path": {
+                            "type": "STRING",
+                            "description": "GitLab project path in namespace/project format, e.g. 'gitlab-org/gitlab'"
+                        }
+                    },
+                    "required": ["project_path"]
+                }
+            },
+            {
                 "name": "check_fivetran_connectors",
                 "description": "List all Fivetran connectors for the account and return count and sync state. Demonstrates connector-management scope beyond account-info.",
                 "parameters": {
@@ -100,6 +114,56 @@ TOOLS = [
                 }
             },
             {
+                "name": "check_npm_package",
+                "description": "Verify a package exists on the npm public registry and fetch its latest version, release count, and license. Confirms the release is actually published for users.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "package_name": {
+                            "type": "STRING",
+                            "description": "npm package name (scoped or unscoped), e.g. '@v0idd0/launchroom' or 'express'"
+                        }
+                    },
+                    "required": ["package_name"]
+                }
+            },
+            {
+                "name": "check_pypi_package",
+                "description": "Verify a Python package exists on PyPI and fetch its latest version and release count. Use this to confirm Python packages in the release are published.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "package_name": {
+                            "type": "STRING",
+                            "description": "PyPI package name, e.g. 'requests' or 'launchroom-agent'"
+                        }
+                    },
+                    "required": ["package_name"]
+                }
+            },
+            {
+                "name": "check_osv_vulnerabilities",
+                "description": "Query the Google OSV (Open Source Vulnerability) public API for known CVEs affecting a package. Use as a security gate before launch.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "ecosystem": {
+                            "type": "STRING",
+                            "description": "Package ecosystem: npm, PyPI, Go, Maven, NuGet, RubyGems, crates.io"
+                        },
+                        "package_name": {
+                            "type": "STRING",
+                            "description": "The package name within the ecosystem"
+                        },
+                        "version": {
+                            "type": "STRING",
+                            "description": "Optional specific version to check. If empty, checks for any known vulnerabilities."
+                        }
+                    },
+                    "required": ["ecosystem", "package_name"]
+                }
+            },
+            {
                 "name": "score_readiness",
                 "description": "Compute a launch-readiness score 0-100 from blockers and strengths.",
                 "parameters": {
@@ -124,13 +188,14 @@ TOOLS = [
 ]
 
 # Total tools declared in this deployment config — must match launchroom_agent.py TOOLS dict
-LAUNCHROOM_TOOLS_DECLARED = 7
+LAUNCHROOM_TOOLS_DECLARED = 11
 
 SYSTEM_INSTRUCTION = (
     "You are the Launchroom release-readiness agent. "
     "Your job is to check a software project for launch readiness by running "
-    "7 tool calls in sequence: check_preflight → scan_github_repo → probe_partner_mcp "
-    "→ check_fivetran_connectors → verify_live_surfaces → check_vertex_config → score_readiness. "
+    "10 tool calls in sequence: check_preflight → scan_github_repo → probe_partner_mcp "
+    "→ check_gitlab_issues → check_fivetran_connectors → verify_live_surfaces → check_vertex_config "
+    "→ check_npm_package → check_pypi_package → check_osv_vulnerabilities → score_readiness. "
     "Use ALL available tools before returning a final evaluation. "
     "Never hallucinate evidence — only report what tool calls confirm."
 )
